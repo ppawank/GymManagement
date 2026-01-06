@@ -1,0 +1,42 @@
+# Backend
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.iml
+.idea/
+.mvn/
+mvnw
+mvnw.cmd
+
+# Frontend
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# Docker
+*.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

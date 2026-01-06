@@ -1,0 +1,14 @@
+/* Reuse styles from MemberForm.css */
+@import './MemberForm.css';
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}

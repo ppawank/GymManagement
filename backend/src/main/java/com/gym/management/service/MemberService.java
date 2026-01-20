@@ -43,6 +43,13 @@ public class MemberService {
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    public List<com.gym.management.dto.MemberResponse> getPendingFeeMembers() {
+        return memberRepository.findAll().stream()
+                .map(this::mapToMemberResponse)
+                .filter(memberResponse -> "PENDING".equals(memberResponse.getFeeStatus()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     private com.gym.management.dto.MemberResponse mapToMemberResponse(Member member) {
         com.gym.management.dto.MemberResponse response = new com.gym.management.dto.MemberResponse();
         response.setId(member.getId());

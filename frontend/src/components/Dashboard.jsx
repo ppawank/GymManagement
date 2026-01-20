@@ -37,6 +37,13 @@ function Dashboard() {
             description: 'Record monthly payments',
             path: '/payments',
             color: '#4facfe'
+        },
+        {
+            title: 'Pending Fees',
+            icon: '💰',
+            description: 'View members with pending fees',
+            path: '/pending-fees',
+            color: '#fa709a'
         }
     ];
 

@@ -11,6 +11,11 @@ export const memberService = {
         return response.data;
     },
 
+    getPendingFees: async () => {
+        const response = await api.get('/members/pending-fees');
+        return response.data;
+    },
+
     getById: async (id) => {
         const response = await api.get(`/members/${id}`);
         return response.data;

@@ -32,6 +32,12 @@ public class MemberController {
         return ResponseEntity.ok(members);
     }
 
+    @GetMapping("/pending-fees")
+    public ResponseEntity<List<MemberResponse>> getPendingFeeMembers() {
+        List<MemberResponse> members = memberService.getPendingFeeMembers();
+        return ResponseEntity.ok(members);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Member> getMemberById(@PathVariable Long id) {
         Member member = memberService.getMemberById(id);

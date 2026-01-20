@@ -29,7 +29,7 @@ function Login() {
         <div className="login-container">
             <div className="login-card">
                 <div className="login-header">
-                    <h1>🏋️ Gym Management</h1>
+                    <h1>🏋️ Titan Fitness</h1>
                     <p>Welcome back! Please login to continue.</p>
                 </div>
 

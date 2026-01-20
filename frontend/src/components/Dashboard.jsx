@@ -51,7 +51,7 @@ function Dashboard() {
         <div className="dashboard-container">
             <header className="dashboard-header">
                 <div className="header-content">
-                    <h1>🏋️ Gym Management System</h1>
+                    <h1>🏋️ Titan Fitness</h1>
                     <button onClick={handleLogout} className="logout-button">
                         Logout
                     </button>

@@ -44,6 +44,37 @@ public class AttendanceService {
         return attendanceRepository.save(attendance);
     }
 
+    @Transactional
+    public List<Attendance> markBulkAttendance(List<Long> memberIds) {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalTime now = java.time.LocalTime.now();
+
+        List<Attendance> attendances = new java.util.ArrayList<>();
+
+        for (Long memberId : memberIds) {
+            Member member = memberService.getMemberById(memberId);
+
+            // Skip if not active
+            if (member.getStatus() != MemberStatus.ACTIVE) {
+                continue;
+            }
+
+            // Skip if already marked today
+            if (attendanceRepository.existsByMemberAndAttendanceDate(member, today)) {
+                continue;
+            }
+
+            Attendance attendance = new Attendance();
+            attendance.setMember(member);
+            attendance.setAttendanceDate(today);
+            attendance.setCheckInTime(now);
+
+            attendances.add(attendanceRepository.save(attendance));
+        }
+
+        return attendances;
+    }
+
     public List<Attendance> getAllAttendance() {
         return attendanceRepository.findAll();
     }

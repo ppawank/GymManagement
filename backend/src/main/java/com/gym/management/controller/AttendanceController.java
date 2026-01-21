@@ -1,6 +1,7 @@
 package com.gym.management.controller;
 
 import com.gym.management.dto.AttendanceRequest;
+import com.gym.management.dto.BulkAttendanceRequest;
 import com.gym.management.entity.Attendance;
 import com.gym.management.service.AttendanceService;
 import jakarta.validation.Valid;
@@ -23,6 +24,12 @@ public class AttendanceController {
     public ResponseEntity<Attendance> markAttendance(@Valid @RequestBody AttendanceRequest request) {
         Attendance attendance = attendanceService.markAttendance(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(attendance);
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<Attendance>> markBulkAttendance(@Valid @RequestBody BulkAttendanceRequest request) {
+        List<Attendance> attendances = attendanceService.markBulkAttendance(request.getMemberIds());
+        return ResponseEntity.status(HttpStatus.CREATED).body(attendances);
     }
 
     @GetMapping

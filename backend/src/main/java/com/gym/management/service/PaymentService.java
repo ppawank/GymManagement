@@ -1,15 +1,19 @@
 package com.gym.management.service;
 
 import com.gym.management.dto.PaymentRequest;
+import com.gym.management.dto.PaymentResponse;
 import com.gym.management.entity.Member;
 import com.gym.management.entity.Payment;
+import com.gym.management.entity.User;
 import com.gym.management.exception.BusinessException;
 import com.gym.management.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +21,11 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final MemberService memberService;
+    private final UserService userService;
+    private final AuthService authService;
 
     @Transactional
-    public Payment recordPayment(PaymentRequest request) {
+    public PaymentResponse recordPayment(PaymentRequest request, String token) {
         Member member = memberService.getMemberById(request.getMemberId());
 
         // Validate month and year
@@ -43,15 +49,82 @@ public class PaymentService {
         payment.setPaymentYear(request.getPaymentYear());
         payment.setPaymentDate(request.getPaymentDate());
 
-        return paymentRepository.save(payment);
+        // Auto-verify if created by ADMIN
+        if (authService.isAdmin(token)) {
+            payment.setVerified(true);
+            String username = authService.getUsernameFromToken(token);
+            User admin = userService.findByUsername(username);
+            payment.setVerifiedBy(admin);
+            payment.setVerifiedAt(LocalDateTime.now());
+        } else {
+            payment.setVerified(false);
+        }
+
+        Payment savedPayment = paymentRepository.save(payment);
+        return mapToResponse(savedPayment);
     }
 
-    public List<Payment> getAllPayments() {
-        return paymentRepository.findAll();
+    @Transactional
+    public PaymentResponse verifyPayment(Long paymentId, String token) {
+        if (!authService.isAdmin(token)) {
+            throw new BusinessException("UNAUTHORIZED",
+                    "Only admins can verify payments");
+        }
+
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new BusinessException("PAYMENT_NOT_FOUND",
+                        "Payment with ID " + paymentId + " not found"));
+
+        if (payment.getVerified()) {
+            throw new BusinessException("ALREADY_VERIFIED",
+                    "Payment is already verified");
+        }
+
+        String username = authService.getUsernameFromToken(token);
+        User admin = userService.findByUsername(username);
+
+        payment.setVerified(true);
+        payment.setVerifiedBy(admin);
+        payment.setVerifiedAt(LocalDateTime.now());
+
+        Payment updatedPayment = paymentRepository.save(payment);
+        return mapToResponse(updatedPayment);
     }
 
-    public List<Payment> getMemberPayments(Long memberId) {
+    public List<PaymentResponse> getPendingVerifications() {
+        return paymentRepository.findByVerifiedFalseOrderByCreatedAtDesc().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<PaymentResponse> getAllPayments() {
+        return paymentRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<PaymentResponse> getMemberPayments(Long memberId) {
         Member member = memberService.getMemberById(memberId);
-        return paymentRepository.findByMemberOrderByPaymentYearDescPaymentMonthDesc(member);
+        return paymentRepository.findByMemberOrderByPaymentYearDescPaymentMonthDesc(member).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    private PaymentResponse mapToResponse(Payment payment) {
+        PaymentResponse response = new PaymentResponse();
+        response.setId(payment.getId());
+        response.setMemberId(payment.getMember().getId());
+        response.setMemberName(payment.getMember().getName());
+        response.setAmount(payment.getAmount());
+        response.setPaymentMonth(payment.getPaymentMonth());
+        response.setPaymentYear(payment.getPaymentYear());
+        response.setPaymentDate(payment.getPaymentDate());
+        response.setVerified(payment.getVerified());
+        if (payment.getVerifiedBy() != null) {
+            response.setVerifiedByUsername(payment.getVerifiedBy().getUsername());
+        }
+        response.setVerifiedAt(payment.getVerifiedAt());
+        response.setCreatedAt(payment.getCreatedAt());
+        return response;
     }
 }

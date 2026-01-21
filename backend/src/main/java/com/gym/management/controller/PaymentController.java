@@ -1,8 +1,9 @@
 package com.gym.management.controller;
 
 import com.gym.management.dto.PaymentRequest;
-import com.gym.management.entity.Payment;
+import com.gym.management.dto.PaymentResponse;
 import com.gym.management.service.PaymentService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,20 +21,38 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<Payment> recordPayment(@Valid @RequestBody PaymentRequest request) {
-        Payment payment = paymentService.recordPayment(request);
+    public ResponseEntity<PaymentResponse> recordPayment(
+            @Valid @RequestBody PaymentRequest request,
+            HttpSession session) {
+        String token = (String) session.getAttribute("authToken");
+        PaymentResponse payment = paymentService.recordPayment(request, token);
         return ResponseEntity.status(HttpStatus.CREATED).body(payment);
     }
 
+    @PostMapping("/{id}/verify")
+    public ResponseEntity<PaymentResponse> verifyPayment(
+            @PathVariable Long id,
+            HttpSession session) {
+        String token = (String) session.getAttribute("authToken");
+        PaymentResponse payment = paymentService.verifyPayment(id, token);
+        return ResponseEntity.ok(payment);
+    }
+
+    @GetMapping("/pending-verification")
+    public ResponseEntity<List<PaymentResponse>> getPendingVerifications() {
+        List<PaymentResponse> payments = paymentService.getPendingVerifications();
+        return ResponseEntity.ok(payments);
+    }
+
     @GetMapping
-    public ResponseEntity<List<Payment>> getAllPayments() {
-        List<Payment> payments = paymentService.getAllPayments();
+    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
+        List<PaymentResponse> payments = paymentService.getAllPayments();
         return ResponseEntity.ok(payments);
     }
 
     @GetMapping("/member/{memberId}")
-    public ResponseEntity<List<Payment>> getMemberPayments(@PathVariable Long memberId) {
-        List<Payment> payments = paymentService.getMemberPayments(memberId);
+    public ResponseEntity<List<PaymentResponse>> getMemberPayments(@PathVariable Long memberId) {
+        List<PaymentResponse> payments = paymentService.getMemberPayments(memberId);
         return ResponseEntity.ok(payments);
     }
 }

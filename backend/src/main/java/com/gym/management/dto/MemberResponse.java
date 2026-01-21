@@ -11,7 +11,9 @@ public class MemberResponse {
     private String name;
     private String email;
     private String phone;
-    private LocalDate joinDate;
     private MemberStatus status;
-    private String feeStatus; // "PAID" or "PENDING"
+    private LocalDate joinDate;
+    private String feeStatus; // PAID or PENDING for current month
+    private LocalDate membershipExpiryDate; // Last payment month + 1 month
+    private Boolean expiringInSevenDays; // Flag for UI highlighting
 }

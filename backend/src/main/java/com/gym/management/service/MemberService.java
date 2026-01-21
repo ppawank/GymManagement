@@ -44,9 +44,21 @@ public class MemberService {
     }
 
     public List<com.gym.management.dto.MemberResponse> getPendingFeeMembers() {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        java.time.LocalDate sevenDaysFromNow = now.plusDays(7);
+
         return memberRepository.findAll().stream()
                 .map(this::mapToMemberResponse)
-                .filter(memberResponse -> "PENDING".equals(memberResponse.getFeeStatus()))
+                .filter(memberResponse -> {
+                    // Include if fee is pending for current month
+                    boolean hasPendingFee = "PENDING".equals(memberResponse.getFeeStatus());
+
+                    // Include if membership expires in next 7 days
+                    boolean expiringInSevenDays = memberResponse.getExpiringInSevenDays() != null
+                            && memberResponse.getExpiringInSevenDays();
+
+                    return hasPendingFee || expiringInSevenDays;
+                })
                 .collect(java.util.stream.Collectors.toList());
     }
 
@@ -65,6 +77,30 @@ public class MemberService {
                 member, now.getMonthValue(), now.getYear());
 
         response.setFeeStatus(isPaid ? "PAID" : "PENDING");
+
+        // Calculate membership expiry date (last payment + 1 month)
+        java.util.List<com.gym.management.entity.Payment> payments = paymentRepository
+                .findByMemberOrderByPaymentYearDescPaymentMonthDesc(member);
+
+        if (!payments.isEmpty()) {
+            com.gym.management.entity.Payment lastPayment = payments.get(0);
+            java.time.LocalDate expiryDate = java.time.LocalDate.of(
+                    lastPayment.getPaymentYear(),
+                    lastPayment.getPaymentMonth(),
+                    1).plusMonths(1).minusDays(1); // Last day of the paid month
+
+            response.setMembershipExpiryDate(expiryDate);
+
+            // Check if expiring in next 7 days
+            java.time.LocalDate sevenDaysFromNow = now.plusDays(7);
+            response.setExpiringInSevenDays(
+                    expiryDate.isAfter(now) && !expiryDate.isAfter(sevenDaysFromNow));
+        } else {
+            // No payments yet - consider as expiring
+            response.setMembershipExpiryDate(member.getJoinDate());
+            response.setExpiringInSevenDays(true);
+        }
+
         return response;
     }
 

@@ -6,6 +6,11 @@ export const attendanceService = {
         return response.data;
     },
 
+    markBulk: async (memberIds) => {
+        const response = await api.post('/attendance/bulk', { memberIds });
+        return response.data;
+    },
+
     getAll: async () => {
         const response = await api.get('/attendance');
         return response.data;

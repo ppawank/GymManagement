@@ -143,3 +143,38 @@
     color: #667eea;
     font-size: 1.1rem;
 }
+
+.section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.section-title.expiring {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.section-title.pending {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.expiring-row {
+    background: #fff9e6 !important;
+}
+
+.expiring-row:hover {
+    background: #fff3cd !important;
+}
+
+.expiry-date {
+    font-weight: 600;
+    color: #d97706;
+}

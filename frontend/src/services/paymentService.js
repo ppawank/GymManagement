@@ -14,5 +14,15 @@ export const paymentService = {
     getMemberPayments: async (memberId) => {
         const response = await api.get(`/payments/member/${memberId}`);
         return response.data;
+    },
+
+    verify: async (paymentId) => {
+        const response = await api.post(`/payments/${paymentId}/verify`);
+        return response.data;
+    },
+
+    getPendingVerifications: async () => {
+        const response = await api.get('/payments/pending-verification');
+        return response.data;
     }
 };

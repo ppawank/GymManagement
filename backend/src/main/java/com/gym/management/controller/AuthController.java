@@ -30,6 +30,8 @@ public class AuthController {
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             response.put("message", "Login successful");
+            response.put("username", authService.getUsernameFromToken(token));
+            response.put("role", authService.getUserRoleFromToken(token).toString());
             return ResponseEntity.ok(response);
         }
 
@@ -58,6 +60,7 @@ public class AuthController {
         response.put("valid", valid);
         if (valid) {
             response.put("username", authService.getUsernameFromToken(token));
+            response.put("role", authService.getUserRoleFromToken(token).toString());
         }
         return ResponseEntity.ok(response);
     }

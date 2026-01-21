@@ -7,6 +7,7 @@ import MemberForm from './components/MemberForm';
 import AttendanceForm from './components/AttendanceForm';
 import PaymentForm from './components/PaymentForm';
 import PendingFees from './components/PendingFees';
+import UserManagement from './components/UserManagement';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/attendance" element={<AttendanceForm />} />
                 <Route path="/payments" element={<PaymentForm />} />
                 <Route path="/pending-fees" element={<PendingFees />} />
+                <Route path="/users" element={<UserManagement />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>

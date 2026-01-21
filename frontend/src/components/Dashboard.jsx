@@ -47,6 +47,16 @@ function Dashboard() {
         }
     ];
 
+    if (authService.isAdmin()) {
+        menuItems.push({
+            title: 'User Access',
+            icon: '🔐',
+            description: 'Manage system users',
+            path: '/users',
+            color: '#ff9f43'
+        });
+    }
+
     return (
         <div className="dashboard-container">
             <header className="dashboard-header">

@@ -17,6 +17,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByMemberOrderByPaymentYearDescPaymentMonthDesc(Member member);
 
+    Optional<Payment> findTopByMemberOrderByPaymentYearDescPaymentMonthDesc(Member member);
+
     List<Payment> findByPaymentMonthAndPaymentYearOrderByPaymentDate(Integer month, Integer year);
 
     List<Payment> findByVerifiedFalseOrderByCreatedAtDesc();

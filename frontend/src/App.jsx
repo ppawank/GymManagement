@@ -8,6 +8,7 @@ import AttendanceForm from './components/AttendanceForm';
 import PaymentForm from './components/PaymentForm';
 import PendingFees from './components/PendingFees';
 import UserManagement from './components/UserManagement';
+import ExcelManagement from './components/ExcelManagement';
 import './App.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/payments" element={<PaymentForm />} />
                 <Route path="/pending-fees" element={<PendingFees />} />
                 <Route path="/users" element={<UserManagement />} />
+                <Route path="/excel-management" element={<ExcelManagement />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>

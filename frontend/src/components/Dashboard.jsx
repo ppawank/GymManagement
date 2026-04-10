@@ -55,6 +55,13 @@ function Dashboard() {
             path: '/users',
             color: '#ff9f43'
         });
+        menuItems.push({
+            title: 'Excel Management',
+            icon: '📊',
+            description: 'Import/Export Members Data',
+            path: '/excel-management',
+            color: '#20bf6b'
+        });
     }
 
     return (

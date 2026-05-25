@@ -4,7 +4,8 @@ import com.gym.management.dto.UserRequest;
 import com.gym.management.dto.UserResponse;
 import com.gym.management.enums.UserRole;
 import com.gym.management.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.gym.management.service.AuthService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,21 +22,37 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
+
+    private void checkAdminAccess(HttpSession session) {
+        String token = (String) session.getAttribute("authToken");
+        if (token == null || !authService.isAdmin(token)) {
+            throw new com.gym.management.exception.BusinessException("UNAUTHORIZED",
+                    "Access denied. Admin privileges required.");
+        }
+    }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> createUser(
+            @Valid @RequestBody UserRequest request,
+            HttpSession session) {
+        checkAdminAccess(session);
         UserResponse user = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers(HttpSession session) {
+        checkAdminAccess(session);
         List<UserResponse> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(
+            @PathVariable Long id,
+            HttpSession session) {
+        checkAdminAccess(session);
         UserResponse user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
@@ -43,14 +60,19 @@ public class UserController {
     @PutMapping("/{id}/role")
     public ResponseEntity<UserResponse> updateUserRole(
             @PathVariable Long id,
-            @RequestBody Map<String, String> request) {
+            @RequestBody Map<String, String> request,
+            HttpSession session) {
+        checkAdminAccess(session);
         UserRole newRole = UserRole.valueOf(request.get("role"));
         UserResponse user = userService.updateUserRole(id, newRole);
         return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            HttpSession session) {
+        checkAdminAccess(session);
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

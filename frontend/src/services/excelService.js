@@ -6,7 +6,8 @@ const excelService = {
      */
     exportMembers: async () => {
         try {
-            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = user?.token;
             const response = await api.get('/excel/export', {
                 headers: {
                     'Authorization': token
@@ -68,7 +69,8 @@ const excelService = {
      */
     importMembers: async (file) => {
         try {
-            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = user?.token;
             const formData = new FormData();
             formData.append('file', file);
 

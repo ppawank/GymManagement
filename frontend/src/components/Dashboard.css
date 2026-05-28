@@ -1,137 +1,237 @@
-.dashboard-container {
+.ops-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f4f7fb;
+    color: #172033;
 }
 
-.dashboard-header {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 20px 0;
+.ops-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 36px;
+    background: #ffffff;
+    border-bottom: 1px solid #dfe6ef;
 }
 
-.header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+.ops-header h1 {
+    margin: 4px 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    color: #172033;
+}
+
+.eyebrow {
+    color: #0f766e;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.subtle {
+    color: #667085;
+    font-size: 0.95rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button,
+.text-button {
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    min-height: 38px;
+}
+
+.primary-button {
+    background: #172033;
+    color: #ffffff;
+    padding: 0 18px;
+}
+
+.secondary-button {
+    background: #e7edf5;
+    color: #172033;
+    padding: 0 18px;
+}
+
+.text-button {
+    background: transparent;
+    color: #0f766e;
+}
+
+.ops-layout {
+    padding: 26px 36px 40px;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.metric-card {
+    background: #ffffff;
+    border: 1px solid #dfe6ef;
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.metric-card span {
+    display: block;
+    color: #667085;
+    font-size: 0.86rem;
+    margin-bottom: 10px;
+}
+
+.metric-card strong {
+    color: #172033;
+    font-size: 1.75rem;
+}
+
+.panel-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.85fr);
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.panel {
+    background: #ffffff;
+    border: 1px solid #dfe6ef;
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.wide-panel {
+    grid-row: span 2;
+}
+
+.panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.panel-heading h2 {
+    font-size: 1rem;
+    color: #172033;
+}
+
+.occupancy-list,
+.compact-list {
+    display: grid;
+    gap: 12px;
+}
+
+.occupancy-row {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) minmax(120px, 260px) 70px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    border: 1px solid #edf1f6;
+    border-radius: 6px;
+}
+
+.occupancy-row span {
+    display: block;
+    color: #667085;
+    font-size: 0.86rem;
+    margin-top: 3px;
+}
+
+.occupancy-meter {
+    height: 10px;
+    overflow: hidden;
+    background: #e7edf5;
+    border-radius: 999px;
+}
+
+.occupancy-meter div {
+    height: 100%;
+    background: #0f766e;
+}
+
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+}
+
+.quick-link {
+    text-align: left;
+    border: 1px solid #dfe6ef;
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 14px;
+    cursor: pointer;
+}
+
+.quick-link strong,
+.quick-link span {
+    display: block;
+}
+
+.quick-link span {
+    color: #667085;
+    font-size: 0.82rem;
+    margin-top: 6px;
+}
+
+.compact-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #edf1f6;
 }
 
-.header-content h1 {
-    color: #667eea;
-    font-size: 1.8rem;
-    font-weight: 700;
+.compact-row b {
+    color: #0f766e;
 }
 
-.logout-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.notice {
+    margin: 18px 36px 0;
+    padding: 12px 14px;
+    border-radius: 6px;
 }
 
-.logout-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+.notice.error {
+    background: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fecdd3;
 }
 
-.dashboard-main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 20px;
+.empty-text {
+    color: #667085;
+    padding: 10px 0;
 }
 
-.welcome-section {
-    text-align: center;
-    color: white;
-    margin-bottom: 50px;
-}
-
-.welcome-section h2 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    font-weight: 700;
-}
-
-.welcome-section p {
-    font-size: 1.2rem;
-    opacity: 0.9;
-}
-
-.menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
-}
-
-.menu-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 40px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.menu-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: var(--card-color);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.menu-card:hover::before {
-    transform: scaleX(1);
-}
-
-.menu-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.menu-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-
-    0%,
-    100% {
-        transform: translateY(0);
+@media (max-width: 780px) {
+    .ops-header,
+    .ops-layout {
+        padding-left: 18px;
+        padding-right: 18px;
     }
 
-    50% {
-        transform: translateY(-10px);
+    .ops-header,
+    .panel-grid,
+    .occupancy-row {
+        grid-template-columns: 1fr;
     }
-}
 
-.menu-card h3 {
-    color: #333;
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-    font-weight: 700;
-}
-
-.menu-card p {
-    color: #666;
-    font-size: 1rem;
+    .ops-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 }

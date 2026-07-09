@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gym-debezium
+  namespace: gym-management
+spec:
+  ports:
+    - port: 8083
+      targetPort: 8083
+  selector:
+    app: gym-debezium
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gym-debezium
+  namespace: gym-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gym-debezium
+  template:
+    metadata:
+      labels:
+        app: gym-debezium
+    spec:
+      containers:
+        - name: debezium
+          image: debezium/connect:2.4
+          env:
+            - name: BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: gym-config
+                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+            - name: GROUP_ID
+              value: "gym-connect-group"
+            - name: CONFIG_STORAGE_TOPIC
+              value: "gym_connect_configs"
+            - name: OFFSET_STORAGE_TOPIC
+              value: "gym_connect_offsets"
+            - name: STATUS_STORAGE_TOPIC
+              value: "gym_connect_statuses"
+            - name: CONFIG_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: OFFSET_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: STATUS_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: KEY_CONVERTER
+              value: "org.apache.kafka.connect.json.JsonConverter"
+            - name: VALUE_CONVERTER
+              value: "org.apache.kafka.connect.json.JsonConverter"
+            - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
+              value: "false"
+            - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
+              value: "false"
+          ports:
+            - containerPort: 8083
+              name: connectport

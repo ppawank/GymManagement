@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: gym-management
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: gym-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gym-backend
+  namespace: gym-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gym-backend
+  template:
+    metadata:
+      labels:
+        app: gym-backend
+    spec:
+      initContainers:
+        - name: wait-for-services
+          image: busybox:1.36
+          command:
+            - "sh"
+            - "-c"
+            - |
+              echo "Waiting for services to be ready..."
+              until nc -z gym-postgres 5432; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+              until nc -z gym-kafka 9092; do
+                echo "Waiting for Kafka..."
+                sleep 2
+              done
+              until nc -z gym-elasticsearch 9200; do
+                echo "Waiting for Elasticsearch..."
+                sleep 2
+              done
+              echo "All services up!"
+      containers:
+        - name: backend
+          image: gym-backend:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: gym-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gym-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gym-config
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gym-secrets
+                  key: postgres-password
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: gym-config
+                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+            - name: ELASTICSEARCH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gym-config
+                  key: ELASTICSEARCH_URL
+            - name: DEBEZIUM_CONNECT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gym-config
+                  key: DEBEZIUM_CONNECT_URL
+          ports:
+            - containerPort: 8080
+              name: apiport
+          readinessProbe:
+            httpGet:
+              path: /api/auth/validate
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/auth/validate
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20

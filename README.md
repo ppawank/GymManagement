@@ -1,60 +1,65 @@
-# Gym Management System
+# 🏋️‍♂️ Gym Management System
 
-A production-ready, full-stack gym management application with member management, attendance tracking, and payment recording capabilities. Built with Spring Boot, React, and MySQL, fully containerized with Docker for easy on-premise deployment.
+A production-ready, full-stack gym management application featuring member administration, attendance tracking, payment verification, and real-time operations dashboards. 
 
-## 🚀 Features
+Powered by a modern event-driven architecture using **Spring Boot 3**, **React**, **PostgreSQL**, **Elasticsearch**, **Apache Kafka**, and **Debezium CDC (Change Data Capture)**, containerized with **Docker** for effortless local or on-premise deployment.
 
-### Member Management
-- Register new gym members
-- Activate/deactivate member accounts
-- View member details and status
-- Search and filter members
+---
 
-### Attendance Tracking
-- Mark daily attendance for active members
-- One attendance record per member per day
-- View attendance history
-- Attendance restricted to active members only
+## ✨ Features
 
-### Payment Management
-- Record monthly membership payments
-- One payment per member per month
-- Track payment history
-- Prevent duplicate payments
+### 👥 Member Management
+- Register and manage gym members.
+- Activate/deactivate membership status.
+- Assign members to specific gym branches.
 
-### Authentication
-- Simple session-based authentication
-- Secure API endpoints
-- Easy to extend to Spring Security + JWT
+### 📅 Attendance & Class Booking
+- Mark daily attendance for active members (restricted to active status, one check-in per day).
+- Live class occupancy tracking with max capacity constraints.
+
+### 💳 Payment & Subscriptions
+- Record monthly membership payments with duplicate prevention.
+- Subscription plan tier tracking (Basic, Premium, VIP) with start/end date validation.
+- Secure, admin-verified payment system.
+
+### ⚡ Real-Time Events & Analytics (WebSockets)
+- **Live Branch Occupancy:** Dynamic progress metrics on how full a gym branch is.
+- **Instant Check-ins:** Broadcasted notifications when members scan in.
+- **Trainer Availability:** Real-time trainer status updates (Available/Busy).
+- **Class Updates:** Live-syncing class booking metrics.
+
+### 🔍 Instant Search (Elasticsearch)
+- High-performance, full-text instant member and class searches powered by a dedicated Elasticsearch cluster.
+
+### 🔄 Change Data Capture (CDC Pipeline)
+- Outbox pattern and real-time database CDC synchronization utilizing **Debezium Connect** streaming changes from **PostgreSQL** to **Apache Kafka**.
+
+---
 
 ## 🛠️ Technology Stack
 
-### Backend
-- **Java 17**
-- **Spring Boot 3.2.1**
-- **Spring Data JPA**
-- **MySQL 8.0**
-- **Maven**
+| Component | Technology | Version |
+| :--- | :--- | :--- |
+| **Backend Framework** | Spring Boot | 3.2.1 |
+| **Database** | PostgreSQL | 15 (Alpine) |
+| **Search Engine** | Elasticsearch | 7.17.10 |
+| **Message Broker** | Apache Kafka / Zookeeper | 7.3.0 (Confluent) |
+| **CDC Connector** | Debezium Connect | 2.4 |
+| **Frontend UI** | React / Vite | 18 |
+| **Styling** | Vanilla CSS (Modern Gradients) | - |
+| **Containerization** | Docker / Docker Compose | 3.8 schema |
 
-### Frontend
-- **React 18**
-- **React Router**
-- **Axios**
-- **Vite**
-- **Modern CSS with Gradients**
-
-### Deployment
-- **Docker & Docker Compose**
-- **Nginx**
-- **Multi-stage builds**
-- **Auto-start configuration**
+---
 
 ## 📋 Prerequisites
 
-- Docker 20.10+
-- Docker Compose 2.0+
-- 4GB RAM minimum
-- 10GB free disk space
+- **Docker Desktop** (Version 20.10+) or Docker Engine
+- **Docker Compose** (Version 2.0+)
+- **System Memory:** Minimum 4GB RAM (8GB recommended for Kafka + ES + Debezium)
+- **Disk Space:** 10GB free disk space
+- **Available Ports:** 3000 (Frontend), 8080 (Backend), 5432 (Postgres), 9200 (Elasticsearch), 29092 (Kafka), 8083 (Debezium Connect)
+
+---
 
 ## 🚀 Quick Start
 
@@ -63,141 +68,143 @@ A production-ready, full-stack gym management application with member management
    cd d:/Study/GymManagement/GymManagement
    ```
 
-2. **Start the application**
+2. **Start the environment (All Services)**
+   Ensure Docker Desktop is running, then execute:
    ```bash
-   docker-compose up -d
+   docker-compose up -d --build
    ```
+   *This single command builds local Spring Boot/React images and boots PostgreSQL, Kafka, Elasticsearch, and Debezium.*
 
 3. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8080
-   - Default credentials: `admin` / `admin`
+   - **Web UI:** [http://localhost:3000](http://localhost:3000)
+   - **Backend API Docs / Base URL:** [http://localhost:8080](http://localhost:8080)
+   - **Default Credentials:**
+     - **Username:** `admin`
+     - **Password:** `admin`
+     - *Please change default passwords in production setups.*
 
-4. **Stop the application**
+4. **Shutdown the application**
    ```bash
-   docker-compose down
+   docker-compose down -v
    ```
+   *(Add `-v` to also reset database volumes if you want a fresh start).*
+
+---
 
 ## 📁 Project Structure
 
 ```
 GymManagement/
-├── backend/                    # Spring Boot backend
+├── backend/                    # Spring Boot backend application
 │   ├── src/main/java/
 │   │   └── com/gym/management/
-│   │       ├── controller/     # REST controllers
-│   │       ├── service/        # Business logic
-│   │       ├── repository/     # Data access
-│   │       ├── entity/         # JPA entities
-│   │       ├── dto/            # Data transfer objects
-│   │       ├── exception/      # Exception handling
-│   │       ├── config/         # Configuration
-│   │       └── interceptor/    # Auth interceptor
-│   ├── src/main/resources/
-│   │   ├── application.properties
-│   │   └── application-docker.properties
-│   ├── pom.xml
-│   └── Dockerfile
-├── frontend/                   # React frontend
+│   │       ├── config/         # System, Web, WS, and Jackson config
+│   │       ├── controller/     # REST Endpoints
+│   │       ├── service/        # Business Logic & Real-time broadcasts
+│   │       ├── repository/     # JPA Data Access Interfaces
+│   │       ├── entity/         # PostgreSQL JPA entities
+│   │       └── dto/            # REST and Event payloads
+│   ├── pom.xml                 # Maven configuration
+│   └── Dockerfile              # Multi-stage production build
+├── frontend/                   # React Single Page App
 │   ├── src/
-│   │   ├── components/         # React components
-│   │   ├── services/           # API services
-│   │   ├── App.jsx             # Main app component
-│   │   └── index.jsx           # Entry point
-│   ├── package.json
-│   ├── Dockerfile
-│   └── nginx.conf
+│   │   ├── components/         # Modular UI views & widgets
+│   │   ├── services/           # Axios HTTP request clients
+│   │   └── App.jsx             # React router and core layout
+│   ├── package.json            # Node project requirements
+│   └── Dockerfile              # Production Nginx host build
 ├── database/
-│   └── schema.sql              # MySQL schema
-├── deployment/
-│   └── gym-management.service  # Systemd service
-├── docker-compose.yml          # Docker orchestration
-├── DEPLOYMENT.md               # Deployment guide
-└── README.md                   # This file
+│   └── schema.sql              # Database DDL initialization script
+├── docker-compose.yml          # Docker Compose orchestration script
+└── DEPLOYMENT.md               # Advanced production deployment manual
 ```
 
-## 🔐 Default Credentials
-
-- **Username**: admin
-- **Password**: admin
-
-> ⚠️ **Important**: Change these credentials in production!
-
-## 📖 Documentation
-
-- [Deployment Guide](DEPLOYMENT.md) - Complete deployment and auto-start instructions
-- [Database Schema](database/schema.sql) - MySQL database structure
+---
 
 ## 🏗️ Architecture
 
-### Layered Backend Architecture
 ```
-Controller → Service → Repository → Database
+[React Frontend] (Port 3000)
+       │ (REST APIs & WebSockets)
+       ▼
+[Spring Boot Backend] (Port 8080) ◄────── (CDC Sync) ──────┐
+       │                                                   │
+       ├─► [PostgreSQL] (Port 5432) ──(WAL logs)──► [Debezium Connect] (Port 8083)
+       │                                                   │
+       ├─► [Elasticsearch] (Port 9200)                     ▼
+       │                                            [Apache Kafka] (Port 29092)
+       └─► [WebSocket Clients] (/topic/*)
 ```
 
-### Business Rules
-- **Members**: Email must be unique, status can be ACTIVE or INACTIVE
-- **Attendance**: Only ACTIVE members can mark attendance, one record per member per day
-- **Payments**: One payment per member per month, amount must be positive
+### Event-Driven Highlights
+- **Postgres Write-Ahead Log (WAL):** Captured continuously by Debezium.
+- **Kafka Topics:** Real-time event streams populated from table updates.
+- **Spring Boot Consumer:** Listens to Kafka event topics to update the client dashboard dynamically.
 
-### Auto-Start
-- Docker restart policy: `unless-stopped`
-- Systemd service for Linux servers
-- Docker Desktop auto-start for Windows/macOS
+---
 
-## 🔧 Development
+## 🔧 Local Development (Without Docker Containerization)
 
-### Backend Development
+If you prefer to run services manually on your local system:
+
+### 1. Database (PostgreSQL)
+Ensure Postgres is running on port 5432 and run the DDL schema in `database/schema.sql`.
+
+### 2. Backend Application
+Configure local credentials in `backend/src/main/resources/application.properties` and run:
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-### Frontend Development
+### 3. Frontend Application
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+Navigate to [http://localhost:5173](http://localhost:5173).
 
-### Database Access
+### 4. Database CLI Access (Docker-backed)
+If using Docker, access the Postgres terminal directly:
 ```bash
-docker exec -it gym-mysql mysql -u gymuser -p
-# Password: gympass123
+docker exec -it gym-postgres psql -U gymuser -d gym_management
 ```
 
-## 📊 API Endpoints
+---
 
-### Authentication
-- `POST /api/auth/login` - Login
-- `POST /api/auth/logout` - Logout
-- `GET /api/auth/validate` - Validate session
+## 📊 Core API Endpoints
 
-### Members
-- `POST /api/members` - Register member
-- `GET /api/members` - List all members
-- `GET /api/members/{id}` - Get member details
-- `PUT /api/members/{id}/activate` - Activate member
-- `PUT /api/members/{id}/deactivate` - Deactivate member
+### 🔐 Authentication
+- `POST /api/auth/login` - Authenticate administrator/user.
+- `POST /api/auth/logout` - Clear active session.
+- `GET /api/auth/validate` - Session validation check.
 
-### Attendance
-- `POST /api/attendance` - Mark attendance
-- `GET /api/attendance` - List all attendance
-- `GET /api/attendance/member/{memberId}` - Member attendance history
+### 👥 Member Management
+- `POST /api/members` - Register a new member.
+- `GET /api/members` - Retrieve all members.
+- `GET /api/members/{id}` - View profile details.
+- `PUT /api/members/{id}/activate` - Set member status to ACTIVE.
+- `PUT /api/members/{id}/deactivate` - Set member status to INACTIVE.
 
-### Payments
-- `POST /api/payments` - Record payment
-- `GET /api/payments` - List all payments
-- `GET /api/payments/member/{memberId}` - Member payment history
+### 📅 Attendance Tracker
+- `POST /api/attendance` - Log a member check-in.
+- `GET /api/attendance` - Query all check-ins.
+- `GET /api/attendance/member/{memberId}` - Historical attendance logs.
 
-## 🐛 Troubleshooting
+### 💳 Payments
+- `POST /api/payments` - Record a new payment.
+- `GET /api/payments` - Retrieve payment logs.
+- `GET /api/payments/member/{memberId}` - Check payment history of a specific member.
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed troubleshooting guide.
+---
 
 ## 📝 License
 
 This project is created for educational and commercial use.
 
+---
+
 ## 👨‍💻 Author
 
-Built as a production-ready gym management solution with modern technologies and best practices.
+Built as a production-ready gym management solution using modern micro-interaction capabilities and event-driven patterns.

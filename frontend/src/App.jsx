@@ -9,6 +9,8 @@ import PaymentForm from './components/PaymentForm';
 import PendingFees from './components/PendingFees';
 import UserManagement from './components/UserManagement';
 import ExcelManagement from './components/ExcelManagement';
+import SearchPortal from './components/SearchPortal';
+import LoggerUI from './components/LoggerUI';
 import './App.css';
 
 function App() {
@@ -24,6 +26,8 @@ function App() {
                 <Route path="/pending-fees" element={<PendingFees />} />
                 <Route path="/users" element={<UserManagement />} />
                 <Route path="/excel-management" element={<ExcelManagement />} />
+                <Route path="/search" element={<SearchPortal />} />
+                <Route path="/logger" element={<LoggerUI />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>

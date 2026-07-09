@@ -3,6 +3,8 @@ package com.gym.management.repository;
 import com.gym.management.entity.Attendance;
 import com.gym.management.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -19,4 +21,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     List<Attendance> findByMemberOrderByAttendanceDateDesc(Member member);
 
     List<Attendance> findByAttendanceDateOrderByCheckInTime(LocalDate attendanceDate);
+
+    List<Attendance> findByBranchId(Long branchId);
+
+    // Count members currently checked in at a branch (checked in today, not yet checked out)
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.branch.id = :branchId " +
+           "AND a.attendanceDate = :today AND a.checkOutTime IS NULL")
+    long countCurrentOccupancy(@Param("branchId") Long branchId, @Param("today") LocalDate today);
 }

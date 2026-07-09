@@ -51,6 +51,10 @@ public class Member {
     @Column(name = "join_date", nullable = false)
     private LocalDate joinDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

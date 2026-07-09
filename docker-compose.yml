@@ -1,30 +1,118 @@
 version: '3.8'
 
 services:
-  # MySQL Database
-  mysql:
-    image: mysql:8.0
-    container_name: gym-mysql
+  # PostgreSQL Database (configured for logical replication for Debezium CDC)
+  postgres:
+    image: postgres:15-alpine
+    container_name: gym-postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass123
-      MYSQL_DATABASE: gym_management
-      MYSQL_USER: gymuser
-      MYSQL_PASSWORD: gympass123
+      POSTGRES_USER: gymuser
+      POSTGRES_PASSWORD: gympass123
+      POSTGRES_DB: gym_management
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command: ["postgres", "-c", "wal_level=logical", "-c", "max_wal_senders=4", "-c", "max_replication_slots=4"]
     networks:
       - gym-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass123"]
+      test: ["CMD-SHELL", "pg_isready -U gymuser -d gym_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: gym-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - gym-network
+
+  # Apache Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: gym-kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - gym-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Backend Service
+  # Debezium Connect (for capturing PostgreSQL CDC events and sending them to Kafka)
+  debezium-connect:
+    image: debezium/connect:2.4
+    container_name: gym-debezium
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: gym-connect-group
+      CONFIG_STORAGE_TOPIC: gym_connect_configs
+      OFFSET_STORAGE_TOPIC: gym_connect_offsets
+      STATUS_STORAGE_TOPIC: gym_connect_statuses
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      STATUS_STORAGE_REPLICATION_FACTOR: 1
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - gym-network
+
+  # Elasticsearch for real-time analytics and instant search queries
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: gym-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - gym-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
   backend:
     build:
       context: ./backend
@@ -36,7 +124,11 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      mysql:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     networks:
       - gym-network
@@ -46,7 +138,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Frontend Service
+  # React Frontend
   frontend:
     build:
       context: ./frontend
@@ -65,5 +157,6 @@ networks:
     driver: bridge
 
 volumes:
-  mysql-data:
+  postgres-data:
     driver: local
+

@@ -27,8 +27,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: gym-frontend:latest
-          imagePullPolicy: IfNotPresent
+          image: localhost/gym-frontend:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 80
               name: http

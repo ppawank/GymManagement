@@ -76,7 +76,7 @@ spec:
               value: "gym-zookeeper:2181"
             - name: KAFKA_ADVERTISED_LISTENERS
               value: "PLAINTEXT://gym-kafka:9092"
-            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "PLAINTEXT:PLAINTEXT"
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
               value: "1"

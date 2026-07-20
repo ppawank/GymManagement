@@ -48,8 +48,8 @@ spec:
               echo "All services up!"
       containers:
         - name: backend
-          image: gym-backend:latest
-          imagePullPolicy: IfNotPresent
+          image: localhost/gym-backend:latest
+          imagePullPolicy: Never
           env:
             - name: SPRING_PROFILES_ACTIVE
               valueFrom:

@@ -164,7 +164,7 @@ data:
 
     -- Insert Default Admin User (seed user with password 'admin' using BCrypt)
     INSERT INTO users (username, password, role, active) VALUES
-    ('admin', '$2a$10$8.UnVuG9HHgffUDAlk8q7uy5RLxeBIj2tLm5.A9.g9BDt1tALm6Ku', 'ADMIN', TRUE);
+    ('admin', '$2a$06$/FkZc/7ydc7hg4kTIfRwIO4NWqsyIt1/e8h3DPwaoK6NTm.I9vWru', 'ADMIN', TRUE);
 ---
 apiVersion: v1
 kind: Service
